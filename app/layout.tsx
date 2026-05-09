@@ -8,6 +8,9 @@ export const metadata: Metadata = {
   keywords: ["Aditya Chauhan", "Full Stack Developer", "Digital Marketing", "React Developer", "Next.js", "Node.js", "Meta Ads", "Google Ads", "Web Developer India"],
   authors: [{ name: "Aditya Chauhan" }],
   creator: "Aditya Chauhan",
+  verification: {
+    google: "hhFzxqM6HAtpEkFplaBtm9qffdKG67YcaCRmj8T84yM",
+  },
   openGraph: {
     type: "website",
     title: "Aditya Chauhan | Full Stack Developer & Digital Marketer",
