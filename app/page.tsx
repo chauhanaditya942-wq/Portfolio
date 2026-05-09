@@ -3,7 +3,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { motion, useInView } from "framer-motion";
 import * as Icons from "lucide-react";
 import { useTheme } from "next-themes";
-import SilhouetteSVG from "@/components/SilhouetteSVG";
+import Image from "next/image";
 
 export default function Home() {
   const { theme, setTheme } = useTheme();
@@ -63,14 +63,6 @@ export default function Home() {
     },
   ];
 
-  const skills = [
-    { cat: "Frontend", items: ["React", "Next.js", "Tailwind CSS", "Framer Motion"] },
-    { cat: "Backend", items: ["Node.js", "Express.js", "REST APIs"] },
-    { cat: "Database", items: ["Supabase", "MongoDB", "PostgreSQL"] },
-    { cat: "Marketing", items: ["Meta Ads", "Google Ads", "Social Media"] },
-    { cat: "Tools", items: ["VS Code", "Git", "GitHub", "Vercel"] },
-  ];
-
   return (
     <main className="min-h-screen bg-[#f5f4f0] dark:bg-[#080c0f] text-slate-900 dark:text-slate-100 transition-colors duration-300 overflow-x-hidden">
 
@@ -95,14 +87,16 @@ export default function Home() {
                 </a>
               ))}
             </div>
-            <button
-              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-              className="p-2 rounded-full bg-black/5 dark:bg-white/5 hover:ring-2 ring-blue-400 transition-all"
-            >
-              {theme === "dark"
-                ? <Icons.Sun size={16} className="text-yellow-400" />
-                : <Icons.Moon size={16} className="text-slate-500" />}
-            </button>
+<button
+  onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+  className="p-2 rounded-full bg-black/5 dark:bg-white/5 hover:ring-2 ring-blue-400 transition-all z-50 relative cursor-pointer"
+  suppressHydrationWarning
+>
+  {mounted && (theme === "dark"
+    ? <Icons.Sun size={16} className="text-yellow-400" />
+    : <Icons.Moon size={16} className="text-slate-500" />
+  )}
+</button>
           </div>
         </div>
       </nav>
@@ -125,17 +119,14 @@ export default function Home() {
 
             <motion.h1
               variants={fadeUp}
-              className="text-6xl md:text-[80px] font-black tracking-[-3px] leading-[0.9] mb-6 uppercase"
+              className="text-6xl md:text-[60px] font-black tracking-[-2px] leading-[0.9] mb-6 uppercase"
               style={{ fontFamily: "'Syne', sans-serif" }}
             >
               Aditya<br />
               <span className="text-black/20 dark:text-white/15">Chauhan</span>
             </motion.h1>
 
-            <motion.div
-              variants={fadeUp}
-              className="flex items-center gap-3 mb-5"
-            >
+            <motion.div variants={fadeUp} className="flex items-center gap-3 mb-5">
               <span className="px-3 py-1 bg-black dark:bg-white text-white dark:text-black text-[10px] font-black uppercase tracking-widest rounded-full">
                 Full Stack Dev
               </span>
@@ -174,7 +165,7 @@ export default function Home() {
                 target="_blank"
                 className="flex items-center gap-2 text-xs text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors font-bold"
               >
-                <Icons.GitBranch size={15} />
+                <Icons.GitBranch size={15} /> GitHub
               </a>
               <span className="text-slate-200 dark:text-slate-800">|</span>
               <a
@@ -186,15 +177,17 @@ export default function Home() {
             </motion.div>
           </div>
 
-          {/* Right — Silhouette */}
+          {/* Right — Photo */}
           <motion.div variants={fadeUp} className="flex justify-end items-end">
             <div className="relative w-full max-w-[420px] aspect-[3/4] rounded-[160px_160px_0_0] overflow-hidden self-end">
-  <img
-    src="/photo.jpg"
-    alt="Aditya Chauhan"
-    className="w-full h-full object-cover object-top"
-  />
-</div>
+              <Image
+                src="/photo.jpg"
+                alt="Aditya Chauhan"
+                fill
+                className="object-cover object-top"
+                priority
+              />
+            </div>
           </motion.div>
         </motion.div>
       </section>
@@ -350,7 +343,7 @@ export default function Home() {
                 {[
                   { icon: "Mail", label: "Email", val: "chauhanaditya942@gmail.com", href: "mailto:chauhanaditya942@gmail.com" },
                   { icon: "Phone", label: "Phone", val: "+91 78278 72625", href: "tel:+917827872625" },
-                  { icon: "Github", label: "GitHub", val: "chauhanaditya942-wq", href: "https://github.com/chauhanaditya942-wq" },
+                  { icon: "GitBranch", label: "GitHub", val: "chauhanaditya942-wq", href: "https://github.com/chauhanaditya942-wq" },
                 ].map((c) => {
                   const Icon = Icons[c.icon as keyof typeof Icons] as React.ElementType;
                   return (
@@ -439,7 +432,6 @@ export default function Home() {
   );
 }
 
-/* ── Scroll reveal wrapper ── */
 function SectionReveal({ children }: { children: React.ReactNode }) {
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: "-80px" });
