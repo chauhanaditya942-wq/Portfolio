@@ -87,16 +87,16 @@ export default function Home() {
                 </a>
               ))}
             </div>
-<button
-  onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-  className="p-2 rounded-full bg-black/5 dark:bg-white/5 hover:ring-2 ring-blue-400 transition-all z-50 relative cursor-pointer"
-  suppressHydrationWarning
->
-  {mounted && (theme === "dark"
-    ? <Icons.Sun size={16} className="text-yellow-400" />
-    : <Icons.Moon size={16} className="text-slate-500" />
-  )}
-</button>
+            <button
+              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+              className="p-2 rounded-full bg-black/5 dark:bg-white/5 hover:ring-2 ring-blue-400 transition-all z-50 relative cursor-pointer"
+              suppressHydrationWarning
+            >
+              {mounted && (theme === "dark"
+                ? <Icons.Sun size={16} className="text-yellow-400" />
+                : <Icons.Moon size={16} className="text-slate-500" />
+              )}
+            </button>
           </div>
         </div>
       </nav>
@@ -108,7 +108,7 @@ export default function Home() {
           initial="initial" animate="animate" variants={stagger}
         >
           {/* Left */}
-          <div className="pb-16">
+          <div className="pb-8 md:pb-16">
             <motion.div
               variants={fadeUp}
               className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 text-emerald-600 dark:text-emerald-400 text-[10px] font-black uppercase tracking-widest mb-8"
@@ -119,7 +119,7 @@ export default function Home() {
 
             <motion.h1
               variants={fadeUp}
-              className="text-6xl md:text-[60px] font-black tracking-[-2px] leading-[0.9] mb-6 uppercase"
+              className="text-4xl md:text-[60px] font-black tracking-[-2px] leading-[0.9] mb-6 uppercase"
               style={{ fontFamily: "'Syne', sans-serif" }}
             >
               Aditya<br />
@@ -178,8 +178,8 @@ export default function Home() {
           </div>
 
           {/* Right — Photo */}
-          <motion.div variants={fadeUp} className="flex justify-end items-end">
-            <div className="relative w-full max-w-[420px] aspect-[3/4] rounded-[160px_160px_0_0] overflow-hidden self-end">
+          <motion.div variants={fadeUp} className="flex justify-center md:justify-end items-end">
+            <div className="relative w-[260px] md:w-full md:max-w-[420px] aspect-[3/4] rounded-[120px_120px_0_0] md:rounded-[160px_160px_0_0] overflow-hidden self-end">
               <Image
                 src="/photo.jpg"
                 alt="Aditya Chauhan"
