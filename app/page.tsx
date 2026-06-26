@@ -8,6 +8,7 @@ import {
   useMotionValue,
   useTransform,
   useSpring,
+  useReducedMotion,
 } from "framer-motion";
 import * as Icons from "lucide-react";
 import { useTheme } from "next-themes";
@@ -20,14 +21,15 @@ export default function Home() {
   const [formState, setFormState] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [heroMouse, setHeroMouse] = useState({ x: 0, y: 0 });
   const [activeSection, setActiveSection] = useState("");
+  const [mode, setMode] = useState<"dev" | "ads">("dev");
   const { scrollYProgress, scrollY } = useScroll();
   const photoY = useTransform(scrollY, [0, 600], [0, 50]);
 
-  const roles = [
-    "Shipping production code.",
-    "Running campaigns that convert.",
-    "Building Vasundhara Media.",
-  ];
+  const rolesByMode = {
+    dev: ["Shipping production code.", "Wiring Supabase & MongoDB.", "TypeScript end to end."],
+    ads: ["Running campaigns that convert.", "Optimizing Meta & Google spend.", "Building Vasundhara Media."],
+  };
+  const roles = rolesByMode[mode];
   const [roleIndex, setRoleIndex] = useState(0);
 
   useEffect(() => setMounted(true), []);
@@ -35,7 +37,7 @@ export default function Home() {
   useEffect(() => {
     const id = setInterval(() => setRoleIndex((i) => (i + 1) % roles.length), 2600);
     return () => clearInterval(id);
-  }, [roles.length]);
+  }, [mode]);
 
   useEffect(() => {
     const sectionIds = ["about", "projects", "contact"];
@@ -139,6 +141,8 @@ export default function Home() {
     { value: 2024, suffix: "", label: "Agency Founded" },
   ];
 
+  const heroMetric = mode === "dev" ? stats[0] : stats[2];
+
   const twinkleDots = [
     { top: "10%", left: "12%", delay: 0 },
     { top: "68%", left: "6%", delay: 0.6 },
@@ -150,17 +154,18 @@ export default function Home() {
     <main className="min-h-screen bg-[#f5f4f0] dark:bg-[#080c0f] text-slate-900 dark:text-slate-100 transition-colors duration-300 overflow-x-hidden">
 
       <CustomCursor />
+      <Mascot mode={mode} />
 
       {/* SCROLL PROGRESS BAR */}
       <motion.div
         style={{ scaleX: scrollYProgress }}
-        className="fixed top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-blue-500 via-cyan-400 to-blue-500 origin-left z-[60]"
+        className="fixed top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-[#2453FF] via-[#5B8DFF] to-[#2453FF] origin-left z-[60]"
       />
 
-      {/* Ambient floating blobs */}
-      <div className="fixed -z-20 top-[-10%] left-[-10%] w-[500px] h-[500px] rounded-full bg-blue-400/10 dark:bg-blue-500/10 blur-[100px] animate-float" />
+      {/* Ambient floating blobs — blue (dev) + amber (ads), mirroring the hero toggle */}
+      <div className="fixed -z-20 top-[-10%] left-[-10%] w-[500px] h-[500px] rounded-full bg-[#2453FF]/10 blur-[100px] animate-float" />
       <div
-        className="fixed -z-20 bottom-[-15%] right-[-10%] w-[600px] h-[600px] rounded-full bg-emerald-400/10 dark:bg-emerald-500/10 blur-[100px] animate-float"
+        className="fixed -z-20 bottom-[-15%] right-[-10%] w-[600px] h-[600px] rounded-full bg-amber-400/10 dark:bg-amber-500/10 blur-[100px] animate-float"
         style={{ animationDuration: "16s", animationDelay: "2s" }}
       />
 
@@ -171,7 +176,7 @@ export default function Home() {
       <nav className="sticky top-0 z-50 bg-[#f5f4f0]/80 dark:bg-[#080c0f]/80 backdrop-blur-md border-b border-black/[0.06] dark:border-white/[0.06]">
         <div className="max-w-6xl mx-auto px-8 h-14 flex items-center justify-between">
           <span className="font-black text-lg tracking-tighter font-display">
-            AC<span className="text-blue-500">.</span>
+            AC<span className="text-[#2453FF] dark:text-[#5B8DFF]">.</span>
           </span>
           <div className="flex items-center gap-8">
             <div className="hidden md:flex gap-8 text-[11px] font-bold uppercase tracking-widest text-slate-400">
@@ -181,7 +186,7 @@ export default function Home() {
                   href={`#${item.toLowerCase()}`}
                   className={`transition-colors ${
                     activeSection === item.toLowerCase()
-                      ? "text-blue-500 dark:text-blue-400"
+                      ? "text-[#2453FF] dark:text-[#5B8DFF]"
                       : "hover:text-slate-900 dark:hover:text-white"
                   }`}
                 >
@@ -248,36 +253,69 @@ export default function Home() {
               <span className="text-black/20 dark:text-white/15">Chauhan</span>
             </motion.h1>
 
-            <motion.div variants={fadeUp} className="flex items-center gap-3 mb-4 flex-wrap">
-              <span className="px-3 py-1 bg-black dark:bg-white text-white dark:text-black text-[10px] font-black uppercase tracking-widest rounded-full">
-                Full Stack Dev
-              </span>
-              <span className="text-slate-300 dark:text-slate-700 text-lg">+</span>
-              <span className="px-3 py-1 border border-black/20 dark:border-white/20 text-[10px] font-black uppercase tracking-widest rounded-full">
-                Digital Marketing
-              </span>
-              <span className="text-slate-300 dark:text-slate-700 text-lg">+</span>
-              <span className="px-3 py-1 border border-black/20 dark:border-white/20 text-[10px] font-black uppercase tracking-widest rounded-full">
-                Founder, Vasundhara Media
-              </span>
+            {/* Signature element: Dev / Ads identity toggle */}
+            <motion.div
+              variants={fadeUp}
+              className="inline-flex p-1 rounded-full border border-black/10 dark:border-white/10 bg-black/[0.03] dark:bg-white/[0.04] mb-5"
+            >
+              <button
+                onClick={() => setMode("dev")}
+                className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest transition-colors ${
+                  mode === "dev"
+                    ? "bg-[#2453FF] text-white"
+                    : "text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
+                }`}
+              >
+                <Icons.Code2 size={11} /> Dev
+              </button>
+              <button
+                onClick={() => setMode("ads")}
+                className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest transition-colors ${
+                  mode === "ads"
+                    ? "bg-amber-500 text-white"
+                    : "text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
+                }`}
+              >
+                <Icons.TrendingUp size={11} /> Ads
+              </button>
             </motion.div>
 
-            {/* Rotating role line */}
-            <motion.div variants={fadeUp} className="h-5 mb-5 overflow-hidden">
+            {/* Rotating role line — tinted to active mode */}
+            <motion.div variants={fadeUp} className="h-5 mb-2 overflow-hidden">
               <AnimatePresence mode="wait">
                 <motion.p
-                  key={roleIndex}
+                  key={`${mode}-${roleIndex}`}
                   initial={{ y: 14, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
                   exit={{ y: -14, opacity: 0 }}
                   transition={{ duration: 0.4, ease: "easeOut" }}
-                  className="text-xs font-bold text-blue-500 dark:text-blue-400"
+                  className={`text-xs font-bold ${
+                    mode === "dev" ? "text-[#2453FF] dark:text-[#5B8DFF]" : "text-amber-600 dark:text-amber-400"
+                  }`}
                   style={{ fontFamily: "monospace" }}
                 >
                   → {roles[roleIndex]}
                 </motion.p>
               </AnimatePresence>
             </motion.div>
+
+            {/* Metric chip tied to active mode — reuses the same stats data below */}
+            <motion.p variants={fadeUp} className="text-[11px] font-bold text-slate-400 mb-5">
+              <span className="text-slate-900 dark:text-white font-black">
+                {heroMetric.value}{heroMetric.suffix}
+              </span>{" "}
+              {heroMetric.label.toLowerCase()}
+            </motion.p>
+
+            {/* Quiet identity line */}
+            <motion.p
+              variants={fadeUp}
+              className="text-[11px] font-bold uppercase tracking-[2px] text-slate-400 dark:text-slate-500 mb-6"
+              style={{ fontFamily: "monospace" }}
+            >
+              Full-Stack Dev <span className="text-slate-300 dark:text-slate-700">/</span> Digital Marketer{" "}
+              <span className="text-slate-300 dark:text-slate-700">/</span> Founder, Vasundhara Media
+            </motion.p>
 
             <motion.p
               variants={fadeUp}
@@ -418,19 +456,27 @@ export default function Home() {
 
             <div className="flex flex-col gap-4">
               {[
-                { num: "01", title: "Full Stack Development", desc: "React frontends + Node.js/Express backends, wired to Supabase or MongoDB." },
-                { num: "02", title: "Meta & Google Ads", desc: "Performance campaigns with targeting, A/B testing, and ROI-focused optimization." },
-                { num: "03", title: "Digital Agency Ops", desc: "Run Vasundhara Media end-to-end — client delivery, brand systems, and campaign strategy." },
-              ].map((s) => (
-                <div
-                  key={s.num}
-                  className="p-5 bg-white dark:bg-white/[0.03] border border-black/[0.07] dark:border-white/[0.07] rounded-2xl hover:shadow-lg dark:hover:border-white/20 hover:-translate-y-0.5 transition-all"
-                >
-                  <p className="text-[10px] font-black text-slate-300 dark:text-slate-700 tracking-[3px] mb-2">{s.num}</p>
-                  <p className="font-black text-[15px] mb-1 font-display">{s.title}</p>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">{s.desc}</p>
-                </div>
-              ))}
+                { icon: "Code2", accent: "#2453FF", title: "Full Stack Development", desc: "React frontends + Node.js/Express backends, wired to Supabase or MongoDB." },
+                { icon: "TrendingUp", accent: "#D97706", title: "Meta & Google Ads", desc: "Performance campaigns with targeting, A/B testing, and ROI-focused optimization." },
+                { icon: "Layers", accent: "#64748b", title: "Digital Agency Ops", desc: "Run Vasundhara Media end-to-end — client delivery, brand systems, and campaign strategy." },
+              ].map((s) => {
+                const Icon = Icons[s.icon as keyof typeof Icons] as React.ElementType;
+                return (
+                  <div
+                    key={s.title}
+                    className="p-5 bg-white dark:bg-white/[0.03] border border-black/[0.07] dark:border-white/[0.07] rounded-2xl hover:shadow-lg dark:hover:border-white/20 hover:-translate-y-0.5 transition-all"
+                  >
+                    <div
+                      className="w-9 h-9 rounded-lg flex items-center justify-center mb-3"
+                      style={{ backgroundColor: `${s.accent}1A` }}
+                    >
+                      {Icon && <Icon size={16} style={{ color: s.accent }} />}
+                    </div>
+                    <p className="font-black text-[15px] mb-1 font-display">{s.title}</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">{s.desc}</p>
+                  </div>
+                );
+              })}
             </div>
           </div>
         </SectionReveal>
@@ -548,7 +594,7 @@ export default function Home() {
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   placeholder="Enter your name"
-                  className="w-full px-4 py-3 bg-white dark:bg-white/[0.03] border border-black/[0.10] dark:border-white/[0.10] rounded-xl text-sm outline-none focus:border-blue-500 dark:focus:border-blue-400 transition-colors placeholder:text-slate-300 dark:placeholder:text-slate-700"
+                  className="w-full px-4 py-3 bg-white dark:bg-white/[0.03] border border-black/[0.10] dark:border-white/[0.10] rounded-xl text-sm outline-none focus:border-[#2453FF] dark:focus:border-[#5B8DFF] transition-colors placeholder:text-slate-300 dark:placeholder:text-slate-700"
                 />
               </div>
               <div>
@@ -559,7 +605,7 @@ export default function Home() {
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                   placeholder="your@email.com"
-                  className="w-full px-4 py-3 bg-white dark:bg-white/[0.03] border border-black/[0.10] dark:border-white/[0.10] rounded-xl text-sm outline-none focus:border-blue-500 dark:focus:border-blue-400 transition-colors placeholder:text-slate-300 dark:placeholder:text-slate-700"
+                  className="w-full px-4 py-3 bg-white dark:bg-white/[0.03] border border-black/[0.10] dark:border-white/[0.10] rounded-xl text-sm outline-none focus:border-[#2453FF] dark:focus:border-[#5B8DFF] transition-colors placeholder:text-slate-300 dark:placeholder:text-slate-700"
                 />
               </div>
               <div>
@@ -570,7 +616,7 @@ export default function Home() {
                   value={formData.message}
                   onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                   placeholder="Tell me about your project..."
-                  className="w-full px-4 py-3 bg-white dark:bg-white/[0.03] border border-black/[0.10] dark:border-white/[0.10] rounded-xl text-sm outline-none focus:border-blue-500 dark:focus:border-blue-400 transition-colors resize-none placeholder:text-slate-300 dark:placeholder:text-slate-700"
+                  className="w-full px-4 py-3 bg-white dark:bg-white/[0.03] border border-black/[0.10] dark:border-white/[0.10] rounded-xl text-sm outline-none focus:border-[#2453FF] dark:focus:border-[#5B8DFF] transition-colors resize-none placeholder:text-slate-300 dark:placeholder:text-slate-700"
                 />
               </div>
               <motion.button
@@ -607,7 +653,7 @@ export default function Home() {
               {/* Brand + CTA */}
               <div>
                 <p className="text-2xl font-black tracking-tighter leading-[1.05] font-display mb-4">
-                  Let&apos;s build<br />something <span className="text-blue-400">great.</span>
+                  Let&apos;s build<br />something <span className="text-[#5B8DFF]">great.</span>
                 </p>
                 <motion.a
                   whileHover={{ scale: 1.05, y: -2 }}
@@ -641,6 +687,13 @@ export default function Home() {
                 <p className="text-[10px] font-black uppercase tracking-[3px] text-white/40 mb-4">Right Now</p>
                 <LiveClock />
                 <p className="text-sm font-bold text-white/70 mt-1">Delhi, India</p>
+                <p className="text-[10px] font-black uppercase tracking-[2px] text-white/40 mt-3">
+                  In{" "}
+                  <span className={mode === "dev" ? "text-[#5B8DFF]" : "text-amber-400"}>
+                    {mode === "dev" ? "Dev" : "Ads"}
+                  </span>{" "}
+                  mode
+                </p>
                 <div className="flex gap-3 mt-5">
                   <a
                     href="https://github.com/chauhanaditya942-wq"
@@ -684,7 +737,7 @@ export default function Home() {
         </div>
 
         <div className="max-w-6xl mx-auto px-8 py-5 flex flex-col sm:flex-row items-center gap-4 sm:justify-between relative z-10">
-          <span className="font-black text-sm tracking-tighter font-display">AC<span className="text-blue-400">.</span></span>
+          <span className="font-black text-sm tracking-tighter font-display">AC<span className="text-[#5B8DFF]">.</span></span>
           <p className="text-xs text-white/40 font-bold">Designed & Built by Aditya Chauhan · {new Date().getFullYear()}</p>
           <motion.button
             whileHover={{ scale: 1.1, y: -2 }}
@@ -806,7 +859,7 @@ function CustomCursor() {
 
   return (
     <motion.div
-      className="hidden md:block fixed top-0 left-0 z-[100] pointer-events-none w-4 h-4 rounded-full border-2 border-blue-500 dark:border-blue-400"
+      className="hidden md:block fixed top-0 left-0 z-[100] pointer-events-none w-4 h-4 rounded-full border-2 border-[#2453FF] dark:border-[#5B8DFF]"
       style={{ x: springX, y: springY, scale: isPointer ? 2.2 : 1 }}
     />
   );
@@ -831,5 +884,222 @@ function LiveClock() {
     return () => clearInterval(id);
   }, []);
 
-  return <p className="text-lg font-black font-mono tabular-nums text-blue-400">{time || "--:--:--"}</p>;
+  return <p className="text-lg font-black font-mono tabular-nums text-[#5B8DFF]">{time || "--:--:--"}</p>;
+}
+
+function Mascot({ mode }: { mode: "dev" | "ads" }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const reduceMotion = useReducedMotion();
+  const [face, setFace] = useState({ px: 0, py: 0, near: false, lean: 0 });
+  const [blink, setBlink] = useState(false);
+  const [waving, setWaving] = useState(false);
+  const [quip, setQuip] = useState<string | null>(null);
+  const [squash, setSquash] = useState<number | number[]>(1);
+  const [stretch, setStretch] = useState<number | number[]>(1);
+
+  // Eyes + body lean track the cursor; "near" triggers an excited expression
+  useEffect(() => {
+    const move = (e: MouseEvent) => {
+      const rect = ref.current?.getBoundingClientRect();
+      if (!rect) return;
+      const cx = rect.left + rect.width / 2;
+      const cy = rect.top + rect.height / 2;
+      const dx = e.clientX - cx;
+      const dy = e.clientY - cy;
+      const dist = Math.hypot(dx, dy);
+      const clamped = Math.min(dist, 240);
+      const angle = Math.atan2(dy, dx);
+      const strength = (clamped / 240) * 3.2;
+      setFace({
+        px: Math.cos(angle) * strength,
+        py: Math.sin(angle) * strength,
+        near: dist < 90,
+        lean: Math.max(-7, Math.min(7, (dx / 240) * 7)),
+      });
+    };
+    window.addEventListener("mousemove", move);
+    return () => window.removeEventListener("mousemove", move);
+  }, []);
+
+  // Periodic blink
+  useEffect(() => {
+    const id = setInterval(() => {
+      setBlink(true);
+      setTimeout(() => setBlink(false), 140);
+    }, 3600);
+    return () => clearInterval(id);
+  }, []);
+
+  // Periodic wave
+  useEffect(() => {
+    const id = setInterval(() => {
+      setWaving(true);
+      setTimeout(() => setWaving(false), 900);
+    }, 5200);
+    return () => clearInterval(id);
+  }, []);
+
+  const quips = {
+    dev: ["Let's ship! 🚀", "git push --force? 👀", "console.log('hi')", "Refactoring my life"],
+    ads: ["ROI go brrr 📈", "CTR looking spicy 🔥", "Boosting this post", "Targeting: everyone"],
+  };
+
+  const handleClick = () => {
+    const pool = quips[mode];
+    setQuip(pool[Math.floor(Math.random() * pool.length)]);
+    setSquash([1, 1.28, 0.88, 1.05, 1]);
+    setStretch([1, 0.72, 1.18, 0.95, 1]);
+    setTimeout(() => setQuip(null), 1900);
+    setTimeout(() => {
+      setSquash(1);
+      setStretch(1);
+    }, 520);
+  };
+
+  const accent = mode === "dev" ? "#2453FF" : "#D97706";
+
+  return (
+    <div
+      ref={ref}
+      className="fixed bottom-6 left-6 z-50 cursor-pointer select-none w-20 h-24"
+      onClick={handleClick}
+    >
+      {/* Floating mode-themed particles */}
+      {[0, 1, 2].map((i) => (
+        <motion.span
+          key={i}
+          className="absolute text-[11px] font-black pointer-events-none"
+          style={{ color: accent, left: 4 + i * 20, top: 6 }}
+          animate={{ y: [0, -24, -38], opacity: [0, 1, 0] }}
+          transition={{ duration: 2.8, repeat: Infinity, delay: i * 0.95, ease: "easeOut" }}
+        >
+          {mode === "dev" ? "</>" : "↑"}
+        </motion.span>
+      ))}
+
+      {/* Speech bubble */}
+      <AnimatePresence>
+        {quip && (
+          <motion.div
+            initial={{ opacity: 0, y: 8, scale: 0.85 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 8, scale: 0.85 }}
+            transition={{ type: "spring", stiffness: 380, damping: 22 }}
+            className="absolute -top-12 left-1/2 -translate-x-1/2 whitespace-nowrap px-3.5 py-2 bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-[11px] font-bold rounded-2xl shadow-xl"
+          >
+            {quip}
+            <div className="absolute left-1/2 -translate-x-1/2 -bottom-1 w-2.5 h-2.5 bg-slate-900 dark:bg-white rotate-45" />
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Ground shadow — paired with the bob for a grounded feel */}
+      <motion.div
+        className="absolute left-1/2 -translate-x-1/2 bottom-1 w-11 h-3 rounded-full bg-black/25 dark:bg-black/50 blur-[2px]"
+        animate={reduceMotion ? {} : { scaleX: [1, 0.7, 1], opacity: [0.35, 0.18, 0.35] }}
+        transition={{ duration: 2.4, repeat: Infinity, ease: "easeInOut" }}
+      />
+
+      {/* Ambient glow */}
+      <motion.div
+        className="absolute top-2 left-2 w-16 h-16 rounded-full blur-xl -z-10"
+        style={{ backgroundColor: accent, opacity: 0.22 }}
+        animate={{ scale: [1, 1.15, 1] }}
+        transition={{ duration: 2.4, repeat: Infinity, ease: "easeInOut" }}
+      />
+
+      {/* Body — bob + lean toward cursor + click squash/stretch */}
+      <motion.div
+        className="relative w-16 h-16 mx-auto"
+        animate={{
+          y: reduceMotion ? 0 : [0, -6, 0],
+          rotate: face.lean,
+          scaleX: squash,
+          scaleY: stretch,
+        }}
+        transition={{
+          y: { duration: 2.4, repeat: Infinity, ease: "easeInOut" },
+          rotate: { duration: 0.3 },
+          scaleX: { duration: 0.5, ease: "easeOut" },
+          scaleY: { duration: 0.5, ease: "easeOut" },
+        }}
+      >
+        <svg width="64" height="64" viewBox="0 0 64 64" fill="none" className="drop-shadow-md overflow-visible">
+          <defs>
+            <linearGradient id="botBody" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#ffffff" />
+              <stop offset="100%" stopColor="#eef1f5" />
+            </linearGradient>
+          </defs>
+
+          {/* Pulsing antenna light */}
+          <motion.circle
+            cx="32" cy="5" r="3" fill={accent}
+            animate={{ opacity: [0.6, 1, 0.6] }}
+            transition={{ duration: 1.6, repeat: Infinity, ease: "easeInOut" }}
+          />
+          <line x1="32" y1="6" x2="32" y2="13" stroke={accent} strokeWidth="2.5" strokeLinecap="round" />
+
+          {/* Waving arm */}
+          <motion.rect
+            x="46" y="14" width="7" height="16" rx="3.5"
+            fill="url(#botBody)" className="dark:fill-slate-800" stroke={accent} strokeWidth="2"
+            style={{ originX: 0.5, originY: 1 }}
+            animate={{ rotate: waving ? [0, -28, 10, -18, 0] : 0 }}
+            transition={{ duration: 0.9, ease: "easeInOut" }}
+          />
+
+          {/* Head/body */}
+          <rect x="9" y="13" width="46" height="42" rx="18" fill="url(#botBody)" className="dark:fill-slate-800" stroke={accent} strokeWidth="2.5" />
+
+          {/* Eyebrows — lift when cursor is close */}
+          <motion.line
+            animate={{ y1: face.near ? 25 : 27, y2: face.near ? 23 : 25 }}
+            x1="19" x2="29"
+            stroke="#0f172a" strokeWidth="1.6" strokeLinecap="round"
+            transition={{ duration: 0.25 }}
+          />
+          <motion.line
+            animate={{ y1: face.near ? 23 : 25, y2: face.near ? 25 : 27 }}
+            x1="35" x2="45"
+            stroke="#0f172a" strokeWidth="1.6" strokeLinecap="round"
+            transition={{ duration: 0.25 }}
+          />
+
+          {/* Eyes with glossy highlight + cursor-tracking pupils */}
+          <motion.g animate={{ scaleY: blink ? 0.1 : face.near ? 1.12 : 1 }} transition={{ duration: 0.12 }}>
+            <circle cx="24" cy="34" r="7" fill="white" stroke="#0f172a" strokeWidth="1.4" />
+            <circle cx={24 + face.px} cy={34 + face.py} r="3.2" fill="#0f172a" />
+            <circle cx={22.3 + face.px} cy={32.3 + face.py} r="1" fill="white" />
+          </motion.g>
+          <motion.g animate={{ scaleY: blink ? 0.1 : face.near ? 1.12 : 1 }} transition={{ duration: 0.12 }}>
+            <circle cx="40" cy="34" r="7" fill="white" stroke="#0f172a" strokeWidth="1.4" />
+            <circle cx={40 + face.px} cy={34 + face.py} r="3.2" fill="#0f172a" />
+            <circle cx={38.3 + face.px} cy={32.3 + face.py} r="1" fill="white" />
+          </motion.g>
+
+          {/* Mouth — morphs when talking / excited */}
+          <motion.path
+            animate={{
+              d: quip
+                ? "M22 44 Q32 60 42 44"
+                : face.near
+                ? "M23 44 Q32 53 41 44"
+                : "M24 45 Q32 51 40 45",
+            }}
+            stroke={accent} strokeWidth="2.4" strokeLinecap="round" fill="none"
+            transition={{ duration: 0.25 }}
+          />
+        </svg>
+
+        {/* Accessory badge — synced to Dev/Ads mode */}
+        <span
+          className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full flex items-center justify-center text-[11px] border-2 border-white dark:border-[#080c0f]"
+          style={{ backgroundColor: accent }}
+        >
+          {mode === "dev" ? "💻" : "📈"}
+        </span>
+      </motion.div>
+    </div>
+  );
 }
